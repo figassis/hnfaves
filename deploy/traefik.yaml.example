@@ -1,0 +1,36 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+serversTransport:
+  insecureSkipVerify: true
+  maxIdleConnsPerHost: 42
+  forwardingTimeouts:
+    dialTimeout: 42
+    responseHeaderTimeout: 42
+    idleConnTimeout: 42
+entryPoints:
+  web:
+    address: ':80'
+  websecure:
+    address: ':443'
+providers:
+  file:
+    directory: /etc/traefik/rules
+    watch: true
+    debugLogGeneratedTemplate: true
+api:
+  dashboard: true
+  debug: true
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: "email@email.com"
+      storage: /etc/traefik/rules/acme.json
+      httpChallenge:
+        entryPoint: web
+ping: {}
+log:
+  level: DEBUG
+  format: common
+accessLog:
+  format: common
