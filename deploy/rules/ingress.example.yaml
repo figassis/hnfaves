@@ -1,0 +1,54 @@
+http:
+  routers:
+    Router0:
+      entryPoints:
+        - http
+        - https
+      middlewares:
+        - CircuitBreaker
+        - RateLimit
+        - Compress
+        - Retry
+      service: Application
+      rule: Host(`hnfaves.com`)
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: hnfaves.com
+    my-api:
+      middlewares:
+        - auth
+      service: api@internal
+      rule: Host(`hnfaves.com`)
+  services:
+    Application:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: 'http://app:80'
+        healthCheck:
+          scheme: http
+          path: /
+          port: 80
+          interval: 10s
+          timeout: 3s
+  middlewares:
+    CircuitBreaker:
+      circuitBreaker:
+        expression: LatencyAtQuantileMS(50.0) > 100 || NetworkErrorRatio() > 0.30
+    Compress:
+      compress: {}
+    ContentType:
+      contentType:
+        autoDetect: true
+    RateLimit:
+      rateLimit:
+        average: 600
+        period: 1m
+    Retry:
+      retry:
+        attempts: 3
+    auth:
+      basicAuth:
+        users:
+          - 'hnfaves:$apr1$ksmxly87$FFPpV5QGy3glHRRUX6kn2.'
