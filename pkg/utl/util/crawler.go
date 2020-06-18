@@ -19,10 +19,11 @@ const (
 
 type (
 	NewsItem struct {
-		ID    string
-		Title string
-		Link  string
-		Index int64
+		ID      string
+		Title   string
+		Link    string
+		Index   int64
+		Created time.Time
 	}
 )
 
@@ -35,6 +36,8 @@ func Crawl(user string, page int64) (result []NewsItem, err error) {
 	if err2 := zaplog.ZLog(GetCache(url, &result)); err2 == nil && len(result) > 0 {
 		return
 	}
+
+	var dates = make(map[string]time.Time, 30)
 
 	// Instantiate default collector and visit only approved domains
 	c := colly.NewCollector(
@@ -78,9 +81,45 @@ func Crawl(user string, page int64) (result []NewsItem, err error) {
 			}
 		})
 
+		e.ForEach("span.age a", func(_ int, el *colly.HTMLElement) {
+			index, err := strconv.Atoi(strings.TrimSuffix(el.Text, "."))
+			if err == nil {
+				item.Index = int64(index)
+			}
+		})
+
 		if item.ID != "" && item.Link != "" && item.Title != "" {
 			result = append(result, item)
 		}
+	})
+
+	c.OnHTML("span.age a", func(e *colly.HTMLElement) {
+		var created = time.Now()
+		if e.Text != "" {
+			parts := strings.Split(e.Text, " ")
+			amount, err2 := strconv.Atoi(parts[0])
+			if len(parts) == 3 && err2 == nil {
+				amount *= -1
+				switch parts[1] {
+				case "seconds":
+					created = created.Add(time.Second * time.Duration(amount))
+				case "minutes":
+					created = created.Add(time.Minute * time.Duration(amount))
+				case "hours":
+					created = created.Add(time.Hour * time.Duration(amount))
+				case "days":
+					created = created.Add(time.Hour * 24 * time.Duration(amount))
+				case "months":
+					created = created.Add(time.Hour * 24 * 30 * time.Duration(amount))
+				case "years":
+					created = created.Add(time.Hour * 24 * 30 * 365 * time.Duration(amount))
+				}
+				id := strings.TrimPrefix(e.Attr("href"), "item?id=")
+				dates[id] = created
+			}
+
+		}
+
 	})
 
 	// Set error handler
@@ -89,6 +128,13 @@ func Crawl(user string, page int64) (result []NewsItem, err error) {
 	})
 
 	err = zaplog.ZLog(c.Visit(url))
+
+	for i := range result {
+		if date, ok := dates[result[i].ID]; ok {
+			result[i].Created = date
+		}
+	}
+
 	go CacheTTL(url, result, time.Minute*10)
 	return
 }

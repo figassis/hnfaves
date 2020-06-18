@@ -35,6 +35,11 @@ func feed(user string, page int64) (feed *feeds.Feed, err error) {
 		Description: fmt.Sprintf("%s's Hacker News favorites", user),
 		Author:      &feeds.Author{Name: user, Email: fmt.Sprintf("%s@hnfaves.com", user)},
 		Created:     now,
+		Updated:     now,
+	}
+
+	if len(items) > 0 {
+		feed.Created = items[len(items)-1].Created
 	}
 
 	for _, item := range items {
@@ -43,9 +48,9 @@ func feed(user string, page int64) (feed *feeds.Feed, err error) {
 			Link:        &feeds.Link{Href: item.Link},
 			Description: item.Title,
 			Author:      feed.Author,
-			Created:     feed.Created,
+			Created:     item.Created,
 			Source:      &feeds.Link{Href: "https://news.ycombinator.com"},
-			Id:          item.ID,
+			Id:          fmt.Sprintf("https://news.ycombinator.com/%s", item.ID),
 		})
 	}
 

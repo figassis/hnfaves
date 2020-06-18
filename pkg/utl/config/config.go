@@ -5,10 +5,11 @@ import (
 
 	"github.com/figassis/hnfaves/pkg/utl/util"
 	"github.com/figassis/hnfaves/pkg/utl/zaplog"
+	"github.com/joho/godotenv"
 )
 
 const (
-	version = "0.0.3"
+	version = "0.0.4"
 )
 
 func Version() string {
@@ -20,6 +21,14 @@ func Load() (cfg *Configuration, err error) {
 	zaplog.Initialize(version)
 	if err = zaplog.ZLog(err); err != nil {
 		return
+	}
+
+	//If we have an .env fle, use that, otherwise, use existing environment
+	if err = util.CheckPath(".env"); err == nil {
+		if err = zaplog.ZLog(godotenv.Load()); err != nil {
+			err = zaplog.ZLog("Could not load env file")
+			return
+		}
 	}
 
 	port := "80"
