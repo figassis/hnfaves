@@ -1,0 +1,49 @@
+version: '3.1'
+services:
+  traefik:
+    image: traefik:v2.0
+    restart: always
+    container_name: traefik
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - ./deploy/traefik.toml:/etc/traefik/traefik.toml:ro
+      - ./deploy/rules:/etc/traefik/rules:ro
+      - ./deploy/acme.json:/acme.json
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "3"
+  hnfaves:
+    image: figassis/hnfaves:0.0.1
+    container_name: app
+    restart: always
+    environment: 
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_TLS: false
+      REQUESTS_PER_SECOND: 3
+    volumes:
+        - cache: /cache
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "10M"
+          max-file: "3"
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "10M"
+          max-file: "3"
+volumes:
+  cache:

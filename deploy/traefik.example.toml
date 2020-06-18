@@ -1,0 +1,41 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = false
+
+[serversTransport]
+  insecureSkipVerify = true
+  maxIdleConnsPerHost = 42
+  [serversTransport.forwardingTimeouts]
+    dialTimeout = 42
+    responseHeaderTimeout = 42
+    idleConnTimeout = 42
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+  [entryPoints.https]
+    address = ":443"
+[providers]
+  [providers.file]
+    directory = "/etc/traefik/rules"
+    watch = true
+    debugLogGeneratedTemplate = true
+
+[api]
+  dashboard = true
+
+[certificatesResolvers.myresolver.acme]
+  email = ""
+  storage = "acme.json"
+  [certificatesResolvers.myresolver.acme.httpChallenge]
+    # used during the challenge
+    entryPoint = "http"
+
+[ping]
+
+[log]
+  level = "DEBUG"
+  format = "common"
+
+[accessLog]
+  format = "common"

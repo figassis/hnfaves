@@ -1,0 +1,55 @@
+[http]
+  [http.routers]
+    [http.routers.Router0]
+      entryPoints = ["http", "https"]
+      middlewares = ["CircuitBreaker", "RateLimit","Compress","Retry"]
+      service = "Application"
+      rule = "Host(`hnfaves.com`)"
+      [http.routers.Router0.tls]
+        certResolver = "myresolver"
+
+        [[http.routers.Router0.tls.domains]]
+          main = "hnfaves.com"
+    
+    [http.routers.my-api]
+      middlewares = ["auth"]
+      service = "api@internal"
+      rule = "Host(`hnfaves.com`)"
+      
+      
+
+  [http.services]
+    [http.services.Application]
+      [http.services.Application.loadBalancer]
+        passHostHeader = true
+        
+        [[http.services.Application.loadBalancer.servers]]
+          url = "http://app:80"
+
+        [http.services.Application.loadBalancer.healthCheck]
+          scheme = "http"
+          path = "/"
+          port = 80
+          interval = "10s"
+          timeout = "3s"
+  [http.middlewares]
+    [http.middlewares.CircuitBreaker]
+      [http.middlewares.CircuitBreaker.circuitBreaker]
+        expression = "LatencyAtQuantileMS(50.0) > 100 || NetworkErrorRatio() > 0.30"
+    [http.middlewares.Compress]
+      [http.middlewares.Compress.compress]
+    [http.middlewares.ContentType]
+      [http.middlewares.ContentType.contentType]
+        autoDetect = true
+    [http.middlewares.RateLimit]
+      [http.middlewares.RateLimit.rateLimit]
+        average = 600
+        period = "1m"
+        # burst = 1
+    [http.middlewares.Retry]
+      [http.middlewares.Retry.retry]
+        attempts = 3
+    
+    [http.middlewares.auth.basicAuth]
+    # hnfaves = "obviouslyreplacethis"
+      users = [ "hnfaves:$apr1$ksmxly87$FFPpV5QGy3glHRRUX6kn2."]

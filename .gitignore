@@ -1,6 +1,10 @@
 vendor
 **/.DS_Store
+**/__MACOSX/*
+*.toml
+!*.example.toml
 *.log
+acme.json
 hnfaves
 cache
 *.env
@@ -22,3 +26,8 @@ cache
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+
+.env
+acme.json
+
