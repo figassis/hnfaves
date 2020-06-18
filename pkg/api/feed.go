@@ -43,15 +43,16 @@ func feed(user string, page int64) (feed *feeds.Feed, err error) {
 	}
 
 	for _, item := range items {
-		feed.Items = append(feed.Items, &feeds.Item{
+		feed.Add(&feeds.Item{
 			Title:       item.Title,
 			Link:        &feeds.Link{Href: item.Link},
 			Description: item.Title,
-			Author:      feed.Author,
 			Created:     item.Created,
-			Source:      &feeds.Link{Href: "https://news.ycombinator.com"},
 			Id:          fmt.Sprintf("https://news.ycombinator.com/%s", item.ID),
+			// Author:      feed.Author,
+			// Source:      &feeds.Link{Href: "https://news.ycombinator.com"},
 		})
+
 	}
 
 	return

@@ -18,7 +18,7 @@ services:
         max-size: "10M"
         max-file: "3"
   app:
-    image: figassis/hnfaves:0.0.4
+    image: figassis/hnfaves:0.0.5
     restart: always
     environment: 
       REDIS_HOST: redis
