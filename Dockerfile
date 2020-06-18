@@ -9,18 +9,16 @@ WORKDIR /build
 COPY go.mod go.sum ./
 RUN apk add git && go mod download
 ADD . .
-
+RUN mkdir -p /cache
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o /app .
 
 # FROM alpine
 FROM gcr.io/distroless/base
 COPY --from=builder /app /app
+COPY --from=builder /cache /cache
 
 WORKDIR /
-
-RUN mkdir -p /cache
 VOLUME [ "/cache" ]
-
 EXPOSE 80 8080
 
-CMD ["./app"]
+CMD ["/app"]

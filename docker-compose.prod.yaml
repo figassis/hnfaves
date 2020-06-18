@@ -25,10 +25,10 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB: 0
-      REDIS_TLS: false
+      REDIS_TLS: "false"
       REQUESTS_PER_SECOND: 3
     volumes:
-        - cache: /cache
+        - cache:/cache
     depends_on:
       - redis
     logging:

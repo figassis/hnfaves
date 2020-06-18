@@ -5,16 +5,15 @@ services:
     container_name: hnfaves
     restart: always
     ports:
-      - "${HOST_PORT}:${APP_PORT}"
+      - "8080:80"
     environment: 
-      APP_PORT: ${APP_PORT}
-      REDIS_HOST: ${REDIS_CONTAINER_NAME}
-      REDIS_PORT: ${REDIS_PORT}
-      REDIS_DB: ${REDIS_DB}
-      REDIS_TLS: ${REDIS_TLS}
-      REQUESTS_PER_SECOND: ${REQUESTS_PER_SECOND}
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_TLS: "false"
+      REQUESTS_PER_SECOND: 3
     volumes:
-        - cache: /cache
+        - cache:/cache
     logging:
       driver: "json-file"
       options:
