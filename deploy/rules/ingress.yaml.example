@@ -1,13 +1,20 @@
 http:
   routers:
-    Router0:
+    AppRouter:
       entryPoints:
         - web
       middlewares:
         - SecureRedirect
       service: Application
       rule: Host(`hnfaves.com`)
-    Router1:
+    NetDataRouter:
+      entryPoints:
+        - web
+      middlewares:
+        - SecureRedirect
+      service: NetData
+      rule: Host(`monitor.hnfaves.com`)
+    AppRouterSecure:
       entryPoints:
         - websecure
       middlewares:
@@ -15,12 +22,29 @@ http:
         - RateLimit
         - Compress
         - Retry
+        - Headers
       service: Application
       rule: Host(`hnfaves.com`)
       tls:
         certResolver: myresolver
         domains:
           - main: hnfaves.com
+    NetdataRouterSecure:
+      entryPoints:
+        - websecure
+      middlewares:
+        - CircuitBreaker
+        - RateLimitNetData
+        - Auth
+        - Compress
+        - Retry
+        - Headers
+      service: NetData
+      rule: Host(`monitor.hnfaves.com`)
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: monitor.hnfaves.com
     my-api:
       middlewares:
         - CircuitBreaker
@@ -47,9 +71,21 @@ http:
           port: 80
           interval: 10s
           timeout: 3s
+    NetData:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: 'http://netdata:19999'
+        healthCheck:
+          scheme: http
+          path: /
+          port: 19999
+          interval: 10s
+          timeout: 3s
   middlewares:
     CircuitBreaker:
-      # Trigger if 50% of requests have a 5s latency, or we see 30% network error ration or we see 25% of requests return 5XX codes 
+      circuitBreaker:
+        # Trigger if 50% of requests have a 5s latency, or we see 30% network error ration or we see 25% of requests return 5XX codes 
         expression: LatencyAtQuantileMS(50.0) > 5000 || NetworkErrorRatio() > 0.30 || ResponseCodeRatio(500, 600, 0, 600) > 0.25
     Compress:
       compress: {}
@@ -60,6 +96,12 @@ http:
       rateLimit:
         average: 600
         period: 1m
+        burst: 5
+    RateLimitNetData:
+      rateLimit:
+        average: 600
+        period: 1m
+        burst: 50
     Retry:
       retry:
         attempts: 3
@@ -67,19 +109,16 @@ http:
       redirectScheme:
         scheme: https
         permanent: true
-    auth:
+    Auth:
       basicAuth:
         users:
           # Generate credentials here: https://www.web2generators.com/apache-tools/htpasswd-generator
           - 'hfaves:$apr1$kqy1pmue$huxSTW.CFgKL88DJ2Okjs0'
     Headers:
       headers:
-        customRequestHeaders:
-          X-Access-Token: ""
         accessControlAllowMethods:
         - GET
         - HEAD
-        accessControlAllowOrigin: *
         stsSeconds: 5184000
         stsIncludeSubdomains: true
         stsPreload: true

@@ -30,7 +30,7 @@ certificatesResolvers:
         entryPoint: web
 ping: {}
 log:
-  level: DEBUG
+  level: INFO
   format: common
 accessLog:
   format: common
