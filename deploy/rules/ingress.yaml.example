@@ -39,8 +39,8 @@ http:
           timeout: 3s
   middlewares:
     CircuitBreaker:
-      circuitBreaker:
-        expression: LatencyAtQuantileMS(50.0) > 100 || NetworkErrorRatio() > 0.30
+      # Trigger if 50% of requests have a 5s latency, or we see 30% network error ration or we see 25% of requests return 5XX codes 
+        expression: LatencyAtQuantileMS(50.0) > 5000 || NetworkErrorRatio() > 0.30 || ResponseCodeRatio(500, 600, 0, 600) > 0.25
     Compress:
       compress: {}
     ContentType:
@@ -61,3 +61,19 @@ http:
       basicAuth:
         users:
           - 'hfaves:$apr1$kqy1pmue$huxSTW.CFgKL88DJ2Okjs0'
+    Headers:
+      headers:
+        customRequestHeaders:
+          X-Access-Token: ""
+        accessControlAllowMethods:
+        - GET
+        - HEAD
+        accessControlAllowOrigin: *
+        stsSeconds: 5184000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        isDevelopment: false

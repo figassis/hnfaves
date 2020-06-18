@@ -1,6 +1,8 @@
 package ratelimiter
 
 import (
+	"os"
+
 	tollbooth "github.com/didip/tollbooth/v6"
 	"github.com/didip/tollbooth/v6/errors"
 	limiter "github.com/didip/tollbooth/v6/limiter"
@@ -10,8 +12,9 @@ import (
 func LimitMiddleware(lmt *limiter.Limiter) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return echo.HandlerFunc(func(c echo.Context) error {
+			var token = os.Getenv("TOKEN")
 			httpError := tollbooth.LimitByRequest(lmt, c.Response(), c.Request())
-			if httpError != nil {
+			if httpError != nil && (token == "" || c.Request().Header.Get("X-Access-Token") != token) {
 				return c.String(httpError.StatusCode, httpError.Message)
 			}
 			return next(c)
