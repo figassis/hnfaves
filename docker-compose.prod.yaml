@@ -7,7 +7,6 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 8080:8080
     depends_on:
       - hnfaves
     volumes:
@@ -48,3 +47,23 @@ services:
       options:
           max-size: "10M"
           max-file: "3"
+  monitor:
+    restart: always
+    hostname: monitor.hnfaves.com
+    container_name: netdata
+    image: netdata/netdata:latest
+    environment: 
+      PGID: 999
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "3"
