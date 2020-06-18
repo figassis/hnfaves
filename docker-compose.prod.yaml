@@ -8,6 +8,8 @@ services:
       - 80:80
       - 443:443
       - 8080:8080
+    depends_on:
+      - hnfaves
     volumes:
       - ./deploy/traefik.toml:/etc/traefik/traefik.toml:ro
       - ./deploy/rules:/etc/traefik/rules:ro
@@ -18,7 +20,7 @@ services:
         max-size: "10M"
         max-file: "3"
   hnfaves:
-    image: figassis/hnfaves:0.0.1
+    image: figassis/hnfaves:0.0.2
     container_name: app
     restart: always
     environment: 

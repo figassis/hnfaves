@@ -1,20 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/figassis/hnfaves/pkg/utl/util"
 	"github.com/figassis/hnfaves/pkg/utl/zaplog"
-	"github.com/joho/godotenv"
-)
-
-var (
-	environment = []string{"APP_PORT", "REQUESTS_PER_SECOND"}
 )
 
 const (
-	version = "0.0.1"
+	version = "0.0.2"
 )
 
 func Version() string {
@@ -25,10 +19,6 @@ func Version() string {
 func Load() (cfg *Configuration, err error) {
 	zaplog.Initialize(version)
 	if err = zaplog.ZLog(err); err != nil {
-		return
-	}
-
-	if err = validateEnvironment(); err != nil {
 		return
 	}
 
@@ -68,20 +58,4 @@ type Server struct {
 	ReadTimeout       int
 	WriteTimeout      int
 	RequestsPerSecond int
-}
-
-func validateEnvironment() error {
-	//If we have an .env fle, use that, otherwise, use existing environment
-	if err := util.CheckPath(".env"); err == nil {
-		if err = zaplog.ZLog(godotenv.Load()); err != nil {
-			return zaplog.ZLog("Could not load env file")
-		}
-	}
-
-	for _, env := range environment {
-		if os.Getenv(env) == "" {
-			return fmt.Errorf("Environment variable %s is required", env)
-		}
-	}
-	return nil
 }
