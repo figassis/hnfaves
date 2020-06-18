@@ -29,6 +29,7 @@ services:
       REDIS_TLS: "false"
       REQUESTS_PER_SECOND: 3
       TOKEN: ${TOKEN}
+      CACHE: "true"
     volumes:
         - ./cache:/cache
     depends_on:

@@ -22,9 +22,19 @@ http:
         domains:
           - main: hnfaves.com
     my-api:
-      middlewares: []
+      middlewares:
+        - CircuitBreaker
+        - RateLimit
+        - Auth
+        - Compress
+        - Retry
+        - Headers
       service: api@internal
-      rule: Host(`hnfaves.com`)
+      rule: Host(`admin.hnfaves.com`)
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: admin.hnfaves.com
   services:
     Application:
       loadBalancer:
@@ -60,6 +70,7 @@ http:
     auth:
       basicAuth:
         users:
+          # Generate credentials here: https://www.web2generators.com/apache-tools/htpasswd-generator
           - 'hfaves:$apr1$kqy1pmue$huxSTW.CFgKL88DJ2Okjs0'
     Headers:
       headers:
