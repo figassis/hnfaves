@@ -29,7 +29,7 @@ services:
       REDIS_TLS: "false"
       REQUESTS_PER_SECOND: 3
     volumes:
-        - cache:/cache
+        - ./cache:/cache
     depends_on:
       - redis
     logging:
@@ -46,5 +46,3 @@ services:
       options:
           max-size: "10M"
           max-file: "3"
-volumes:
-  cache:
