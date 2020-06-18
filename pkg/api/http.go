@@ -11,7 +11,7 @@ import (
 )
 
 func getFeed(c echo.Context) error {
-	user := c.Param("token")
+	user := c.Param("user")
 	if user == "" {
 		if err := zaplog.ZLog(errors.New("Invalid user")); err != nil {
 			return err
@@ -41,5 +41,6 @@ func getFeed(c echo.Context) error {
 	if err = zaplog.ZLog(err); err != nil {
 		return err
 	}
+	c.Response().Header().Set("Content-Type", "application/xml; charset=UTF-8")
 	return c.String(http.StatusOK, r)
 }

@@ -5,14 +5,14 @@ import (
 	"sort"
 	"time"
 
-	"github.com/figassis/covidfree/pkg/utl/util"
+	"github.com/figassis/hnfaves/pkg/utl/util"
 	"github.com/figassis/hnfaves/pkg/utl/zaplog"
 	"github.com/gorilla/feeds"
 	echo "github.com/labstack/echo/v4"
 )
 
-func apiFeed(c echo.Context, user string, page int64) (*feeds.Rss, error) {
-	return nil, nil
+func apiFeed(c echo.Context, user string, page int64) (*feeds.Feed, error) {
+	return feed(user, page)
 }
 
 func feed(user string, page int64) (feed *feeds.Feed, err error) {
@@ -33,7 +33,7 @@ func feed(user string, page int64) (feed *feeds.Feed, err error) {
 		Title:       fmt.Sprintf("%s's Hacker News favorites", user),
 		Link:        &feeds.Link{Href: url},
 		Description: fmt.Sprintf("%s's Hacker News favorites", user),
-		Author:      &feeds.Author{Name: "HN Faves", Email: "info@hnfaves.com"},
+		Author:      &feeds.Author{Name: user, Email: fmt.Sprintf("%s@hnfaves.com", user)},
 		Created:     now,
 	}
 

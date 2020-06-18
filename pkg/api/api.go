@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/figassis/covidfree/pkg/utl/config"
-	"github.com/figassis/covidfree/pkg/utl/server"
+	"github.com/figassis/hnfaves/pkg/utl/config"
+	"github.com/figassis/hnfaves/pkg/utl/server"
 )
 
 // Start starts the API service

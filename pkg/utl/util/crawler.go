@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/figassis/hnfaves/pkg/utl/util"
 	"github.com/figassis/hnfaves/pkg/utl/zaplog"
 	colly "github.com/gocolly/colly/v2"
 )
@@ -33,17 +32,17 @@ func Crawl(user string, page int64) (result []NewsItem, err error) {
 		url = fmt.Sprintf("https://news.ycombinator.com/favorites?id=%s&p=%d", user, page)
 	}
 
-	if err = zaplog.ZLog(util.GetCache(url, &result)); err == nil {
+	if err2 := zaplog.ZLog(GetCache(url, &result)); err2 == nil && len(result) > 0 {
 		return
 	}
 
 	// Instantiate default collector and visit only approved domains
 	c := colly.NewCollector(
 		colly.AllowedDomains("news.ycombinator.com"),
-		colly.Async(true),
+		colly.Async(false),
 		colly.URLFilters(
 			//Only visit links mathcing filter
-			regexp.MustCompile("https://news\\.ycombinator\\.com/favorites\\?id=.*"),
+			regexp.MustCompile(`https://news\.ycombinator\.com/favorites\?id=.*`),
 		),
 	)
 
@@ -53,17 +52,12 @@ func Crawl(user string, page int64) (result []NewsItem, err error) {
 
 	// Limit the number of threads started by colly to two
 	// when visiting links which domains' matches "*httpbin.*" glob
-	c.Limit(&colly.LimitRule{
-		DomainGlob:  "*",
-		Parallelism: maxThreads,
-		RandomDelay: randomDelay * time.Second,
-	})
+	if err = zaplog.ZLog(c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: maxThreads, RandomDelay: randomDelay * time.Second})); err != nil {
+		return
+	}
 
 	// Get data-module elements with country advisory content
 	c.OnHTML(".athing", func(e *colly.HTMLElement) {
-		if !strings.HasPrefix(e.Request.URL.String(), "https://www.gov.uk/foreign-travel-advice/") {
-			return
-		}
 
 		item := NewsItem{
 			ID: e.Attr("id"),
@@ -95,6 +89,6 @@ func Crawl(user string, page int64) (result []NewsItem, err error) {
 	})
 
 	err = zaplog.ZLog(c.Visit(url))
-	go util.CacheTTL(url, result, time.Minute*10)
+	go CacheTTL(url, result, time.Minute*10)
 	return
 }

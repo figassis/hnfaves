@@ -1,7 +1,7 @@
 vendor
 **/.DS_Store
 *.log
-covidfree
+hnfaves
 cache
 *.env
 .vscode
