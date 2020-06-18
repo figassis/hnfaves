@@ -17,9 +17,8 @@ services:
       options:
         max-size: "10M"
         max-file: "3"
-  hnfaves:
+  app:
     image: figassis/hnfaves:0.0.3
-    container_name: app
     restart: always
     environment: 
       REDIS_HOST: redis
