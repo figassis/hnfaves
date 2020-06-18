@@ -1,8 +1,8 @@
 vendor
 **/.DS_Store
 **/__MACOSX/*
-*.toml
-!*.example.toml
+*.yaml
+!docker-compose*yaml
 traefik.yaml
 ingress.yaml
 *.log
