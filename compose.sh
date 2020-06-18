@@ -4,5 +4,4 @@ if [ "$1" = "prod" ]; then
     fname="-f docker-compose.prod.yaml"
 fi
 
-touch deploy/acme.json
 docker-compose $fname down  --remove-orphans; docker-compose $fname build && docker-compose $fname up -d

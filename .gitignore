@@ -3,6 +3,8 @@ vendor
 **/__MACOSX/*
 *.toml
 !*.example.toml
+traefik.yaml
+ingress.yaml
 *.log
 acme.json
 hnfaves

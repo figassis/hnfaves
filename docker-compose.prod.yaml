@@ -11,9 +11,8 @@ services:
     depends_on:
       - hnfaves
     volumes:
-      - ./deploy/traefik.toml:/etc/traefik/traefik.toml:ro
-      - ./deploy/rules:/etc/traefik/rules:ro
-      - ./deploy/acme.json:/acme.json
+      - ./deploy/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./deploy/rules:/etc/traefik/rules
     logging:
       driver: "json-file"
       options:
